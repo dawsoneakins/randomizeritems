@@ -14,6 +14,9 @@ export default function Home() {
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
 
+  const totalSpins = 20 + Math.floor(Math.random() * 10);
+  const interval = 75;
+
   const addItem = () => {
     const trimmed = input.trim();
 
@@ -55,27 +58,29 @@ export default function Home() {
 
   const pickRandom = () => {
     if (items.length === 0) return;
+
     setIsPicking(true);
     setCarouselIndex(0);
     setSelected(null);
 
     let currentIndex = 0;
-    const totalSpins = 15 + Math.floor(Math.random() * 10);
-    const interval = 100;
+    const spins = 25 + Math.floor(Math.random() * 10);
+    const delays = Array.from({ length: spins }, (_, i) => 50 + i * 10); // progressive delay
 
-    const spinner = setInterval(() => {
-      currentIndex++;
-      setCarouselIndex(currentIndex % items.length);
-
-      if (currentIndex >= totalSpins) {
-        clearInterval(spinner);
+    const spin = () => {
+      if (currentIndex < delays.length) {
+        setCarouselIndex(currentIndex % items.length);
+        setTimeout(spin, delays[currentIndex]);
+        currentIndex++;
+      } else {
         const picked = items[currentIndex % items.length];
-
         setSelected(picked);
         addToHistory(picked.name);
         setIsPicking(false);
       }
-    }, interval);
+    };
+
+    spin();
   };
 
   const clearAllItems = () => {
@@ -215,7 +220,8 @@ export default function Home() {
         <SelectedItemModal
           isPicking={isPicking}
           selected={selected}
-          spinningName={items[carouselIndex ?? 0]?.name ?? "..."}
+          items={items}
+          carouselIndex={carouselIndex ?? 0}
           onTryAgain={pickRandom}
           onReset={() => {
             setSelected(null);
