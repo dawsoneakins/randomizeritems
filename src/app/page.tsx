@@ -7,6 +7,8 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPicking, setIsPicking] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
 
   const addItem = () => {
     const trimmed = input.trim();
@@ -37,10 +39,23 @@ export default function Home() {
   };
 
   const pickRandom = () => {
-    if (items.length > 0) {
-      const randomIndex = Math.floor(Math.random() * items.length);
-      setSelected(items[randomIndex]);
-    }
+    if (items.length === 0) return;
+    setIsPicking(true);
+    setCarouselIndex(0);
+
+    let currentIndex = 0;
+    const totalSpins = 15 + Math.floor(Math.random() * 10);
+    const interval = 100;
+
+    const spinner = setInterval(() => {
+      currentIndex++;
+      setCarouselIndex(currentIndex % items.length);
+
+      if (currentIndex >= totalSpins) {
+        clearInterval(spinner);
+        setSelected(items[currentIndex % items.length]);
+      }
+    }, interval);
   };
 
   return (
@@ -116,13 +131,35 @@ export default function Home() {
         Pick Random Item
       </button>
 
-      {/* Selected result */}
-      {selected && (
-        <div
-          className="text-xl font-semibold text-center"
-          style={{ color: "#ffddba" }}
-        >
-          🎉 Selected: <span className="underline">{selected}</span>
+      {isPicking && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+          <div className="bg-[#4e4c4f] text-[#ffddba] p-8 rounded-lg shadow-lg text-center w-[300px] min-h-[180px]">
+            <h2 className="text-xl font-bold mb-4">Picking an item...</h2>
+            <div className="text-2xl font-mono animate-pulse h-12 flex items-center justify-center">
+              {items[carouselIndex ?? 0]}
+            </div>
+            {selected && (
+              <div className="mt-6">
+                <p className="text-lg">🎉 Selected:</p>
+                <p className="text-2xl font-bold mt-1">{selected}</p>
+                <button
+                  onClick={() => {
+                    setIsPicking(false);
+                    setSelected(null);
+                    setCarouselIndex(null);
+                  }}
+                  className="mt-4 px-4 py-2 rounded"
+                  style={{
+                    backgroundColor: "#d9ae8e",
+                    color: "#232220",
+                    fontWeight: "600",
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </main>
