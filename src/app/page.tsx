@@ -54,6 +54,7 @@ export default function Home() {
     if (items.length === 0) return;
     setIsPicking(true);
     setCarouselIndex(0);
+    setSelected(null);
 
     let currentIndex = 0;
     const totalSpins = 15 + Math.floor(Math.random() * 10);
@@ -69,14 +70,21 @@ export default function Home() {
 
         setSelected(picked);
         addToHistory(picked);
+        setIsPicking(false);
       }
     }, interval);
   };
 
   const clearAllItems = () => {
+    const confirmClear = window.confirm(
+      "Are you sure you want to remove all items?"
+    );
+    if (!confirmClear) return;
+
     setItems([]);
     setSelected(null);
     setCarouselIndex(null);
+    setIsPicking(false);
   };
 
   return (
@@ -86,7 +94,6 @@ export default function Home() {
           🎲 Random Item Picker
         </h1>
 
-        {/* Input + Add */}
         <div className="flex gap-2 mb-6">
           <input
             type="text"
@@ -115,7 +122,6 @@ export default function Home() {
 
         {error && <p className="text-sm text-red-400 mb-6">{error}</p>}
 
-        {/* Items List */}
         {items.length > 0 && (
           <section className="flex flex-wrap gap-4 justify-center mb-10">
             {items.map((item, index) => (
@@ -183,8 +189,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Picker Modal */}
-      {isPicking && (
+      {/* {isPicking && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
           <div className="bg-[#4e4c4f] text-[#ffddba] p-8 rounded-lg shadow-lg text-center w-[300px] min-h-[180px]">
             <h2 className="text-xl font-bold mb-4">Picking an item...</h2>
@@ -214,7 +219,66 @@ export default function Home() {
             )}
           </div>
         </div>
-      )}
+      )} */}
+      <div className="mt-8 text-center">
+        {isPicking && (
+          <div
+            className="text-3xl font-mono animate-pulse px-6 py-4 rounded border"
+            style={{
+              backgroundColor: "#4e4c4f",
+              color: "#ffddba",
+              borderColor: "#d9ae8e",
+            }}
+          >
+            {items[carouselIndex ?? 0]}
+          </div>
+        )}
+
+        {!isPicking && selected && (
+          <div className="mt-6 text-center flex flex-col items-center">
+            <p className="text-lg text-[#ffddba]">🎉 Selected:</p>
+            <p
+              className="text-2xl font-bold mt-1 px-4 py-2 rounded"
+              style={{
+                backgroundColor: "#d9ae8e",
+                color: "#232220",
+              }}
+            >
+              {selected}
+            </p>
+
+            {/* 🔄 Try Again */}
+            <button
+              onClick={pickRandom}
+              className="mt-4 px-4 py-2 rounded hover:opacity-90"
+              style={{
+                backgroundColor: "#d9ae8e",
+                color: "#232220",
+                fontWeight: "600",
+              }}
+            >
+              🔄 Try Again
+            </button>
+
+            {/* ❌ Reset */}
+            <button
+              onClick={() => {
+                setSelected(null);
+                setCarouselIndex(null);
+                setIsPicking(false);
+              }}
+              className="mt-2 px-4 py-2 rounded hover:opacity-90"
+              style={{
+                backgroundColor: "#4e4c4f",
+                color: "#ffddba",
+                fontWeight: "600",
+              }}
+            >
+              ❌ Reset
+            </button>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

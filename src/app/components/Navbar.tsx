@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Clock } from "lucide-react";
+import { Dice5 } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -10,7 +10,7 @@ export default function Navbar() {
       style={{ backgroundColor: "#4e4c4f" }}
     >
       <Link href="/" className="flex items-center gap-2">
-        <Clock className="text-[#ffddba]" size={24} />
+        <Dice5 className="text-[#ffddba]" size={24} />
         <span className="text-[#ffddba] font-bold text-lg">
           Random Item Picker
         </span>
