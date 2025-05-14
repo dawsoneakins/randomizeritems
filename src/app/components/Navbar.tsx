@@ -1,0 +1,26 @@
+"use client";
+
+import Link from "next/link";
+import { Clock } from "lucide-react";
+
+export default function Navbar() {
+  return (
+    <nav
+      className="w-full px-6 py-4 flex items-center justify-between fixed top-0 left-0 z-50"
+      style={{ backgroundColor: "#4e4c4f" }}
+    >
+      <Link href="/" className="flex items-center gap-2">
+        <Clock className="text-[#ffddba]" size={24} />
+        <span className="text-[#ffddba] font-bold text-lg">Random Picker</span>
+      </Link>
+      <div>
+        <Link
+          href="/history"
+          className="text-[#ffddba] hover:text-[#d9ae8e] font-medium"
+        >
+          History
+        </Link>
+      </div>
+    </nav>
+  );
+}

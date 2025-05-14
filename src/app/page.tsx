@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import HistoryList from "./components/HistoryList";
 
 export default function Home() {
   const [items, setItems] = useState<string[]>([]);
@@ -9,6 +10,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
 
   const addItem = () => {
     const trimmed = input.trim();
@@ -34,6 +36,14 @@ export default function Home() {
     setSelected(null);
   };
 
+  const addToHistory = (item: string) => {
+    setHistory((prev) => {
+      const updated = [item, ...prev];
+      localStorage.setItem("randomPickerHistory", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
   };
@@ -53,10 +63,20 @@ export default function Home() {
 
       if (currentIndex >= totalSpins) {
         clearInterval(spinner);
-        setSelected(items[currentIndex % items.length]);
+        const picked = items[currentIndex % items.length];
+
+        setSelected(picked);
+        addToHistory(picked);
       }
     }, interval);
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("randomPickerHistory");
+    if (stored) {
+      setHistory(JSON.parse(stored));
+    }
+  }, []);
 
   return (
     <main
@@ -130,6 +150,7 @@ export default function Home() {
       >
         Pick Random Item
       </button>
+      <HistoryList history={history} onClear={() => setHistory([])} />
 
       {isPicking && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
