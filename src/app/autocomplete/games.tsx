@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { IGDBGame } from "../types/IGDBGame";
 
 export type GameItem = {
   name: string;
@@ -12,7 +13,7 @@ export default function GameSearchInput({
   onSelect: (item: GameItem) => void;
 }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<IGDBGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,24 +48,34 @@ export default function GameSearchInput({
 
       {results.length > 0 && (
         <ul className="absolute z-10 bg-[#4e4c4f] w-full rounded mt-1 max-h-60 overflow-y-auto shadow">
-          {results.map((game) => (
-            <li
-              key={game.id}
-              onClick={() => {
-                onSelect({
-                  name: game.name,
-                  image: game.image ?? null,
-                  releaseDate: game.releaseDate ?? null,
-                });
-                setQuery("");
-                setResults([]);
-                inputRef.current?.blur();
-              }}
-              className="px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220] transition-colors duration-150"
-            >
-              {game.name}
-            </li>
-          ))}
+          {results.map((game) => {
+            const image = game.cover
+              ? `https://images.igdb.com/igdb/image/upload/t_cover_small/${game.cover.image_id}.jpg`
+              : undefined;
+
+            const releaseDate = game.first_release_date
+              ? new Date(game.first_release_date * 1000).toLocaleDateString()
+              : undefined;
+
+            return (
+              <li
+                key={game.id}
+                onClick={() => {
+                  onSelect({
+                    name: game.name,
+                    image,
+                    releaseDate,
+                  });
+                  setQuery("");
+                  setResults([]);
+                  inputRef.current?.blur();
+                }}
+                className="px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220] transition-colors duration-150"
+              >
+                {game.name}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
