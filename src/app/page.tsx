@@ -3,17 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import GameSearchInput from "./autocomplete/games";
-
-type Item = {
-  name: string;
-  image?: string | null;
-  releaseDate?: string | null;
-};
+import SelectedItemModal from "./components/SelectedItemModal";
+import { Item } from "./types/Item";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [input, setInput] = useState("");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Item | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
@@ -75,7 +71,7 @@ export default function Home() {
         clearInterval(spinner);
         const picked = items[currentIndex % items.length];
 
-        setSelected(picked.name);
+        setSelected(picked);
         addToHistory(picked.name);
         setIsPicking(false);
       }
@@ -215,65 +211,19 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mt-8 text-center">
-        {isPicking && (
-          <div
-            className="text-3xl font-mono animate-pulse px-6 py-4 rounded border"
-            style={{
-              backgroundColor: "#4e4c4f",
-              color: "#ffddba",
-              borderColor: "#d9ae8e",
-            }}
-          >
-            {items[carouselIndex ?? 0]?.name}
-          </div>
-        )}
-
-        {!isPicking && selected && (
-          <div className="mt-6 text-center flex flex-col items-center">
-            <p className="text-lg text-[#ffddba]">🎉 Selected:</p>
-            <p
-              className="text-2xl font-bold mt-1 px-4 py-2 rounded"
-              style={{
-                backgroundColor: "#d9ae8e",
-                color: "#232220",
-              }}
-            >
-              {selected}
-            </p>
-
-            {/* 🔄 Try Again */}
-            <button
-              onClick={pickRandom}
-              className="mt-4 px-4 py-2 rounded hover:opacity-90"
-              style={{
-                backgroundColor: "#d9ae8e",
-                color: "#232220",
-                fontWeight: "600",
-              }}
-            >
-              🔄 Try Again
-            </button>
-
-            {/* ❌ Reset */}
-            <button
-              onClick={() => {
-                setSelected(null);
-                setCarouselIndex(null);
-                setIsPicking(false);
-              }}
-              className="mt-2 px-4 py-2 rounded hover:opacity-90"
-              style={{
-                backgroundColor: "#4e4c4f",
-                color: "#ffddba",
-                fontWeight: "600",
-              }}
-            >
-              ❌ Reset
-            </button>
-          </div>
-        )}
-      </div>
+      {(isPicking || selected) && (
+        <SelectedItemModal
+          isPicking={isPicking}
+          selected={selected}
+          spinningName={items[carouselIndex ?? 0]?.name ?? "..."}
+          onTryAgain={pickRandom}
+          onReset={() => {
+            setSelected(null);
+            setCarouselIndex(null);
+            setIsPicking(false);
+          }}
+        />
+      )}
     </main>
   );
 }
