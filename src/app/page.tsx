@@ -40,9 +40,10 @@ export default function Home() {
     setSelected(null);
   };
 
-  const addToHistory = (item: string) => {
+  const addToHistory = (item: Item) => {
     const current = localStorage.getItem("randomPickerHistory");
-    const updated = [item, ...(current ? JSON.parse(current) : [])];
+    const parsed: Item[] = current ? JSON.parse(current) : [];
+    const updated = [item, ...parsed];
     localStorage.setItem("randomPickerHistory", JSON.stringify(updated));
   };
 
@@ -68,7 +69,7 @@ export default function Home() {
       } else {
         const picked = items[currentIndex % items.length];
         setSelected(picked);
-        addToHistory(picked.name);
+        addToHistory(picked);
         setIsPicking(false);
       }
     };
