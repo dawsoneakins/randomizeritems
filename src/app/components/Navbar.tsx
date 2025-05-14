@@ -11,7 +11,9 @@ export default function Navbar() {
     >
       <Link href="/" className="flex items-center gap-2">
         <Clock className="text-[#ffddba]" size={24} />
-        <span className="text-[#ffddba] font-bold text-lg">Random Picker</span>
+        <span className="text-[#ffddba] font-bold text-lg">
+          Random Item Picker
+        </span>
       </Link>
       <div>
         <Link
