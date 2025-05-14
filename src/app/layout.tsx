@@ -1,10 +1,10 @@
+// app/layout.tsx
+import Script from "next/script";
 import "./globals.css";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 
 export const metadata = {
   title: "Random Item Picker",
-  description: "Pick a random item from your custom list",
+  description: "Pick something at random for fun!",
 };
 
 export default function RootLayout({
@@ -14,14 +14,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className="flex flex-col min-h-screen"
-        style={{ backgroundColor: "#232220" }}
-      >
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </body>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+          `}
+        </Script>
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

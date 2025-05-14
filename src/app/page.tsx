@@ -17,11 +17,7 @@ export default function Home() {
 
   const addItem = () => {
     const trimmed = input.trim();
-
-    if (!trimmed) {
-      setError("Please enter an item name.");
-      return;
-    }
+    if (!trimmed) return setError("Please enter an item name.");
 
     const isDuplicate = items.some(
       (item) => item.name.toLowerCase() === trimmed.toLowerCase()
@@ -56,14 +52,13 @@ export default function Home() {
 
   const pickRandom = () => {
     if (items.length === 0) return;
-
     setIsPicking(true);
     setCarouselIndex(0);
     setSelected(null);
 
     let currentIndex = 0;
     const spins = 25 + Math.floor(Math.random() * 10);
-    const delays = Array.from({ length: spins }, (_, i) => 50 + i * 10); // progressive delay
+    const delays = Array.from({ length: spins }, (_, i) => 50 + i * 10);
 
     const spin = () => {
       if (currentIndex < delays.length) {
@@ -86,7 +81,6 @@ export default function Home() {
       "Are you sure you want to remove all items?"
     );
     if (!confirmClear) return;
-
     setItems([]);
     setSelected(null);
     setCarouselIndex(null);
@@ -96,16 +90,17 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-[#232220] px-4">
       <div className="w-full max-w-4xl pt-24 pb-16">
-        <h1 className="text-4xl font-bold mb-10 text-center text-[#ffddba]">
+        <h1 className="text-4xl font-bold mb-8 text-center text-[#ffddba]">
           🎲 Random Item Picker
         </h1>
 
-        <div className="flex gap-2 mb-6 w-full max-w-2xl">
+        {/* Manual input */}
+        <div className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="px-4 py-2 rounded w-full border-none focus:outline-none"
+            className="px-4 py-2 text-lg rounded w-full border-none focus:outline-none"
             placeholder="Add a custom item..."
             style={{
               backgroundColor: "#9f8d8d",
@@ -115,7 +110,7 @@ export default function Home() {
           />
           <button
             onClick={addItem}
-            className="px-5 py-2 text-lg rounded hover:opacity-90"
+            className="px-5 py-2 text-lg rounded hover:opacity-90 w-full sm:w-auto"
             style={{
               backgroundColor: "#d9ae8e",
               color: "#232220",
@@ -126,64 +121,58 @@ export default function Home() {
           </button>
         </div>
 
+        {/* Game search input */}
         <GameSearchInput
           onSelect={(item) => setItems((prev) => [...prev, item])}
         />
 
         {error && <p className="text-sm text-red-400 mb-6">{error}</p>}
 
+        {/* Items list */}
         {items.length > 0 && (
-          <section className="flex flex-wrap gap-4 justify-center mb-10">
-            {items.map(
-              (item, index) => (
-                console.log("item", item),
-                (
-                  <div
-                    key={index}
-                    className="flex flex-col justify-between p-4 rounded shadow w-[250px] min-h-[360px]"
-                    style={{
-                      backgroundColor: "#4e4c4f",
-                      color: "#ffddba",
-                    }}
-                  >
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={200}
-                        height={300}
-                        className="rounded"
-                      />
-                    ) : (
-                      <div className="h-[160px] mb-2 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
-                        No image
-                      </div>
-                    )}
-
-                    <span className="text-lg font-semibold mb-2 text-center">
-                      {item.name}
-                    </span>
-
-                    {item.releaseDate && (
-                      <p className="text-sm text-[#ffddba] text-center mb-2">
-                        📅 Released: {item.releaseDate}
-                      </p>
-                    )}
-
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="text-sm hover:underline self-end"
-                      style={{ color: "#ffddba" }}
-                    >
-                      Remove
-                    </button>
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-center mb-10">
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col justify-between p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]"
+              >
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    width={300}
+                    height={300}
+                    className="rounded mb-3 w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
+                    No image
                   </div>
-                )
-              )
-            )}
+                )}
+
+                <span className="text-lg font-semibold mb-1 text-center">
+                  {item.name}
+                </span>
+
+                {item.releaseDate && (
+                  <p className="text-sm text-center mb-2">
+                    📅 {item.releaseDate}
+                  </p>
+                )}
+
+                <button
+                  onClick={() => removeItem(index)}
+                  className="text-sm hover:underline self-end"
+                  style={{ color: "#ffddba" }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
           </section>
         )}
 
+        {/* Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <button
             onClick={pickRandom}
@@ -227,6 +216,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Modal */}
       {(isPicking || selected) && (
         <SelectedItemModal
           isPicking={isPicking}
