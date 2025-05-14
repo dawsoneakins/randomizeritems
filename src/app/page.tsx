@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import GameSearchInput from "./autocomplete/games";
 import SelectedItemModal from "./components/SelectedItemModal";
 import { Item } from "./types/Item";
@@ -13,9 +14,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
-
-  const totalSpins = 20 + Math.floor(Math.random() * 10);
-  const interval = 75;
 
   const addItem = () => {
     const trimmed = input.trim();
@@ -137,11 +135,12 @@ export default function Home() {
                     }}
                   >
                     {item.image ? (
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
-                        className="mb-3 rounded"
-                        style={{ height: "300px", objectFit: "cover" }}
+                        width={200}
+                        height={300}
+                        className="rounded"
                       />
                     ) : (
                       <div className="h-[160px] mb-2 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
