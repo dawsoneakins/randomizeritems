@@ -1,13 +1,22 @@
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
 
-type HistoryListProps = {
-  history: string[];
-  onClear?: () => void;
-};
+export default function HistoryList() {
+  const [history, setHistory] = useState<string[]>([]);
 
-export default function HistoryList({ history, onClear }: HistoryListProps) {
+  useEffect(() => {
+    const stored = localStorage.getItem("randomPickerHistory");
+    if (stored) {
+      setHistory(JSON.parse(stored));
+    }
+  }, []);
+
+  const clearHistory = () => {
+    localStorage.removeItem("randomPickerHistory");
+    setHistory([]);
+  };
+
   if (history.length === 0) return null;
 
   return (
@@ -16,17 +25,14 @@ export default function HistoryList({ history, onClear }: HistoryListProps) {
         <h2 className="text-xl font-semibold" style={{ color: "#ffddba" }}>
           🕘 Pick History
         </h2>
-        {onClear && (
-          <button
-            onClick={onClear}
-            className="text-sm underline hover:text-[#d9ae8e]"
-            style={{ color: "#ffddba" }}
-          >
-            Clear History
-          </button>
-        )}
+        <button
+          onClick={clearHistory}
+          className="text-sm underline hover:text-[#d9ae8e]"
+          style={{ color: "#ffddba" }}
+        >
+          Clear History
+        </button>
       </div>
-
       <ul className="space-y-2">
         {history.map((item, index) => (
           <li
