@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { query } = await req.json();
+  const { query }: { query: string } = await req.json();
 
   const igdbRes = await fetch("https://api.igdb.com/v4/games", {
     method: "POST",
