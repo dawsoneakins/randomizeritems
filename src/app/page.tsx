@@ -100,14 +100,22 @@ export default function Home() {
           🎲 Random Item Picker
         </h1>
 
-        <div className="flex gap-2 mb-6">
-          <GameSearchInput
-            onSelect={(item) => setItems((prev) => [...prev, item])}
+        <div className="flex gap-2 mb-6 w-full max-w-2xl">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="px-4 py-2 rounded w-full border-none focus:outline-none"
+            placeholder="Add a custom item..."
+            style={{
+              backgroundColor: "#9f8d8d",
+              color: "#232220",
+              fontWeight: "500",
+            }}
           />
-
           <button
             onClick={addItem}
-            className="px-5 py-3 text-lg rounded shrink-0 hover:opacity-90"
+            className="px-5 py-2 text-lg rounded hover:opacity-90"
             style={{
               backgroundColor: "#d9ae8e",
               color: "#232220",
@@ -117,6 +125,10 @@ export default function Home() {
             Add
           </button>
         </div>
+
+        <GameSearchInput
+          onSelect={(item) => setItems((prev) => [...prev, item])}
+        />
 
         {error && <p className="text-sm text-red-400 mb-6">{error}</p>}
 
