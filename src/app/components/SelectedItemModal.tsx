@@ -3,6 +3,8 @@
 
 import { Item } from "../types/Item";
 
+import Image from "next/image";
+
 type Props = {
   isPicking: boolean;
   selected: Item | null;
@@ -42,10 +44,12 @@ export default function SelectedItemModal({
                 className="flex flex-col items-center justify-center h-[150px]"
               >
                 {item.image && (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
-                    className="h-[120px] object-contain mb-2 rounded"
+                    width={100}
+                    height={100}
+                    className="rounded"
                   />
                 )}
                 <p className="text-base font-medium text-[#ffddba]">
