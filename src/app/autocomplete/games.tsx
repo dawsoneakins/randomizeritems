@@ -13,7 +13,7 @@ export default function GameSearchInput({
   onSelect: (item: GameItem) => void;
 }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<IGDBGame[]>([]);
+  const [results, setResults] = useState<GameItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,23 +48,15 @@ export default function GameSearchInput({
 
       {results.length > 0 && (
         <ul className="absolute z-10 bg-[#4e4c4f] w-full rounded mt-1 max-h-60 overflow-y-auto shadow">
-          {results.map((game) => {
-            const image = game.cover
-              ? `https://images.igdb.com/igdb/image/upload/t_cover_small/${game.cover.image_id}.jpg`
-              : undefined;
-
-            const releaseDate = game.first_release_date
-              ? new Date(game.first_release_date * 1000).toLocaleDateString()
-              : undefined;
-
+          {results.map((game, idx) => {
             return (
               <li
-                key={game.id}
+                key={game.name + idx}
                 onClick={() => {
                   onSelect({
                     name: game.name,
-                    image,
-                    releaseDate,
+                    image: game.image,
+                    releaseDate: game.releaseDate,
                   });
                   setQuery("");
                   setResults([]);
@@ -82,7 +74,7 @@ export default function GameSearchInput({
   );
 }
 
-export async function fetchIGDBGames(query: string) {
+export async function fetchIGDBGames(query: string): Promise<GameItem[]> {
   const res = await fetch("/api/igdb", {
     method: "POST",
     headers: {
@@ -96,5 +88,7 @@ export async function fetchIGDBGames(query: string) {
     return [];
   }
 
-  return res.json();
+  const data: GameItem[] = await res.json(); // Already formatted from the server
+  console.log("Fetched games:", data);
+  return data;
 }
