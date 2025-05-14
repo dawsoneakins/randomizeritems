@@ -1,103 +1,188 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import HistoryList from "./components/HistoryList";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [items, setItems] = useState<string[]>([]);
+  const [input, setInput] = useState("");
+  const [selected, setSelected] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPicking, setIsPicking] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const addItem = () => {
+    const trimmed = input.trim();
+    if (!trimmed) return;
+
+    const isDuplicate = items.some(
+      (item) => item.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      const confirmAdd = window.confirm(
+        "This item already exists. Are you sure you want to add it again?"
+      );
+      if (!confirmAdd) {
+        setInput("");
+        return;
+      }
+    }
+
+    setItems([...items, trimmed]);
+    setInput("");
+    setError(null);
+    setSelected(null);
+  };
+
+  const addToHistory = (item: string) => {
+    setHistory((prev) => {
+      const updated = [item, ...prev];
+      localStorage.setItem("randomPickerHistory", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const pickRandom = () => {
+    if (items.length === 0) return;
+    setIsPicking(true);
+    setCarouselIndex(0);
+
+    let currentIndex = 0;
+    const totalSpins = 15 + Math.floor(Math.random() * 10);
+    const interval = 100;
+
+    const spinner = setInterval(() => {
+      currentIndex++;
+      setCarouselIndex(currentIndex % items.length);
+
+      if (currentIndex >= totalSpins) {
+        clearInterval(spinner);
+        const picked = items[currentIndex % items.length];
+
+        setSelected(picked);
+        addToHistory(picked);
+      }
+    }, interval);
+  };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("randomPickerHistory");
+    if (stored) {
+      setHistory(JSON.parse(stored));
+    }
+  }, []);
+
+  return (
+    <main
+      className="min-h-screen p-6 flex flex-col items-center"
+      style={{ backgroundColor: "#232220" }}
+    >
+      <h1
+        className="text-3xl font-bold mb-6 text-center"
+        style={{ color: "#ffddba" }}
+      >
+        🎲 Random Item Picker
+      </h1>
+
+      <div className="flex gap-2 mb-6 w-full max-w-2xl">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="px-5 py-3 text-lg rounded w-full border-none focus:outline-none"
+          style={{
+            backgroundColor: "#9f8d8d",
+            color: "#232220",
+            fontWeight: "500",
+          }}
+          placeholder="Enter item name"
+        />
+        <button
+          onClick={addItem}
+          className="px-5 py-3 text-lg rounded shrink-0 hover:opacity-90"
+          style={{
+            backgroundColor: "#d9ae8e",
+            color: "#232220",
+            fontWeight: "600",
+          }}
+        >
+          Add
+        </button>
+      </div>
+
+      <section className="flex flex-wrap gap-4 justify-center w-full max-w-6xl py-4 px-2">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="flex flex-col justify-between p-4 rounded shadow w-[200px]"
+            style={{
+              backgroundColor: "#4e4c4f",
+              color: "#ffddba",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <span className="text-lg mb-2">{item}</span>
+            <button
+              onClick={() => removeItem(index)}
+              className="text-sm hover:underline self-end"
+              style={{ color: "#ffddba" }}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+      </section>
+
+      <button
+        onClick={pickRandom}
+        className="px-6 py-2 rounded hover:opacity-90 disabled:opacity-50 mb-4"
+        style={{
+          backgroundColor: "#d9ae8e",
+          color: "#232220",
+          fontWeight: "600",
+        }}
+        disabled={items.length === 0}
+      >
+        Pick Random Item
+      </button>
+      <HistoryList history={history} onClear={() => setHistory([])} />
+
+      {isPicking && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+          <div className="bg-[#4e4c4f] text-[#ffddba] p-8 rounded-lg shadow-lg text-center w-[300px] min-h-[180px]">
+            <h2 className="text-xl font-bold mb-4">Picking an item...</h2>
+            <div className="text-2xl font-mono animate-pulse h-12 flex items-center justify-center">
+              {items[carouselIndex ?? 0]}
+            </div>
+            {selected && (
+              <div className="mt-6">
+                <p className="text-lg">🎉 Selected:</p>
+                <p className="text-2xl font-bold mt-1">{selected}</p>
+                <button
+                  onClick={() => {
+                    setIsPicking(false);
+                    setSelected(null);
+                    setCarouselIndex(null);
+                  }}
+                  className="mt-4 px-4 py-2 rounded"
+                  style={{
+                    backgroundColor: "#d9ae8e",
+                    color: "#232220",
+                    fontWeight: "600",
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      )}
+    </main>
   );
 }
