@@ -6,7 +6,8 @@ import GameSearchInput from "./autocomplete/games";
 
 type Item = {
   name: string;
-  image?: string;
+  image?: string | null;
+  releaseDate?: string | null;
 };
 
 export default function Home() {
@@ -128,7 +129,7 @@ export default function Home() {
                 (
                   <div
                     key={index}
-                    className="flex flex-col justify-between p-4 rounded shadow w-[200px]"
+                    className="flex flex-col justify-between p-4 rounded shadow w-[250px] min-h-[360px]"
                     style={{
                       backgroundColor: "#4e4c4f",
                       color: "#ffddba",
@@ -138,8 +139,8 @@ export default function Home() {
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="mb-2 rounded"
-                        style={{ height: "160px", objectFit: "cover" }}
+                        className="mb-3 rounded"
+                        style={{ height: "300px", objectFit: "cover" }}
                       />
                     ) : (
                       <div className="h-[160px] mb-2 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
@@ -150,6 +151,12 @@ export default function Home() {
                     <span className="text-lg font-semibold mb-2 text-center">
                       {item.name}
                     </span>
+
+                    {item.releaseDate && (
+                      <p className="text-sm text-[#ffddba] text-center mb-2">
+                        📅 Released: {item.releaseDate}
+                      </p>
+                    )}
 
                     <button
                       onClick={() => removeItem(index)}

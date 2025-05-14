@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 export type GameItem = {
   name: string;
   image: string | undefined;
+  releaseDate: string | undefined;
 };
 
 export default function GameSearchInput({
@@ -50,9 +51,13 @@ export default function GameSearchInput({
             <li
               key={game.id}
               onClick={() => {
-                onSelect({ name: game.name, image: game.image ?? undefined });
-                setResults([]);
+                onSelect({
+                  name: game.name,
+                  image: game.image ?? null,
+                  releaseDate: game.releaseDate ?? null,
+                });
                 setQuery("");
+                setResults([]);
                 inputRef.current?.blur();
               }}
               className="px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220] transition-colors duration-150"

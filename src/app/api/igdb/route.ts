@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       Authorization: `Bearer ${process.env.IGDB_TOKEN!}`,
       "Content-Type": "text/plain",
     },
-    body: `search "${query}"; fields id, name, cover.image_id; limit 10;`,
+    body: `search "${query}"; fields id, name, cover.image_id, first_release_date; limit 10;`,
   });
 
   if (!igdbRes.ok) {
@@ -28,6 +28,9 @@ export async function POST(req: Request) {
     name: game.name,
     image: game.cover?.image_id
       ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
+      : null,
+    releaseDate: game.first_release_date
+      ? new Date(game.first_release_date * 1000).toISOString().split("T")[0]
       : null,
   }));
 
