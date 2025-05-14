@@ -1,6 +1,7 @@
 // app/layout.tsx
 import Script from "next/script";
 import "./globals.css";
+import Navbar from "./components/Navbar"; // ✅ Make sure the path is correct
 
 export const metadata = {
   title: "Random Item Picker",
@@ -24,11 +25,14 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX');
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
           `}
         </Script>
       </head>
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

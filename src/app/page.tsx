@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import GameSearchInput from "./autocomplete/games";
+import { GameSearchInput } from "./autocomplete/games";
 import SelectedItemModal from "./components/SelectedItemModal";
 import { Item } from "./types/Item";
 
@@ -94,41 +94,19 @@ export default function Home() {
           🎲 Random Item Picker
         </h1>
 
-        {/* Manual input */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="px-4 py-2 text-lg rounded w-full border-none focus:outline-none"
-            placeholder="Add a custom item..."
-            style={{
-              backgroundColor: "#9f8d8d",
-              color: "#232220",
-              fontWeight: "500",
-            }}
+        <div className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl mx-auto">
+          <GameSearchInput
+            input={input}
+            setInput={setInput}
+            onSelect={(item: Item) => setItems((prev) => [...prev, item])}
+            onAddCustom={addItem}
           />
-          <button
-            onClick={addItem}
-            className="px-5 py-2 text-lg rounded hover:opacity-90 w-full sm:w-auto"
-            style={{
-              backgroundColor: "#d9ae8e",
-              color: "#232220",
-              fontWeight: "600",
-            }}
-          >
-            Add
-          </button>
         </div>
 
-        {/* Game search input */}
-        <GameSearchInput
-          onSelect={(item) => setItems((prev) => [...prev, item])}
-        />
+        {error && (
+          <p className="text-sm text-red-400 mb-6 text-center">{error}</p>
+        )}
 
-        {error && <p className="text-sm text-red-400 mb-6">{error}</p>}
-
-        {/* Items list */}
         {items.length > 0 && (
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-center mb-10">
             {items.map((item, index) => (
@@ -172,7 +150,6 @@ export default function Home() {
           </section>
         )}
 
-        {/* Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <button
             onClick={pickRandom}
@@ -216,7 +193,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Modal */}
       {(isPicking || selected) && (
         <SelectedItemModal
           isPicking={isPicking}
