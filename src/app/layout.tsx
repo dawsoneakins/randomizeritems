@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 export const metadata = {
-  title: "Random Picker",
+  title: "Random Item Picker",
   description: "Pick a random item from your custom list",
 };
 

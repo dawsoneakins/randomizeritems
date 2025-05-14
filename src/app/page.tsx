@@ -14,7 +14,12 @@ export default function Home() {
 
   const addItem = () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+
+    // Validation: empty input
+    if (!trimmed) {
+      setError("Please enter an item name.");
+      return;
+    }
 
     const isDuplicate = items.some(
       (item) => item.toLowerCase() === trimmed.toLowerCase()
@@ -26,6 +31,7 @@ export default function Home() {
       );
       if (!confirmAdd) {
         setInput("");
+        setError(null);
         return;
       }
     }
@@ -115,6 +121,12 @@ export default function Home() {
           Add
         </button>
       </div>
+
+      {error && (
+        <p className="text-sm text-red-400 -mt-4 mb-6 text-left w-full max-w-2xl">
+          {error}
+        </p>
+      )}
 
       <section className="flex flex-wrap gap-4 justify-center w-full max-w-6xl py-4 px-2">
         {items.map((item, index) => (
