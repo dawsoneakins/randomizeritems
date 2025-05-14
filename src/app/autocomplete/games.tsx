@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { IGDBGame } from "../types/IGDBGame";
 
 export type GameItem = {
   name: string;
