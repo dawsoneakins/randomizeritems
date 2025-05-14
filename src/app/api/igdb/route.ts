@@ -1,3 +1,4 @@
+import { IGDBGame } from "@/app/types/IGDBGame";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -6,7 +7,7 @@ export async function POST(req: Request) {
   const igdbRes = await fetch("https://api.igdb.com/v4/games", {
     method: "POST",
     headers: {
-      "Client-ID": process.env.TWITCH_CLIENT_ID!, // No NEXT_PUBLIC here
+      "Client-ID": process.env.TWITCH_CLIENT_ID!,
       Authorization: `Bearer ${process.env.IGDB_TOKEN!}`,
       "Content-Type": "text/plain",
     },
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
 
   const rawData = await igdbRes.json();
 
-  const formatted = rawData.map((game: any) => ({
+  const formatted = rawData.map((game: IGDBGame) => ({
     id: game.id,
     name: game.name,
     image: game.cover?.image_id
