@@ -30,8 +30,9 @@ export async function POST(req: Request) {
     name: movie.title,
     image: movie.poster_path
       ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-      : null,
-    releaseDate: movie.release_date || null,
+      : undefined,
+    releaseDate: movie.release_date || undefined,
+    type: "movie",
   }));
 
   return NextResponse.json(formatted);

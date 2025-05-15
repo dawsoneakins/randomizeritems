@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Item } from "../types/Item";
 
+import { IGDBApiResponse, TMDBApiResponse } from "../types/apis";
+
 export function SearchInput({
   input,
   setInput,
@@ -25,6 +27,7 @@ export function SearchInput({
     const timer = setTimeout(async () => {
       setLoading(true);
       const items = await fetchItems(input);
+      console.log("Fetched items:", items);
       setResults(items);
       setLoading(false);
     }, 400);
@@ -50,7 +53,6 @@ export function SearchInput({
           fontWeight: "500",
         }}
       />
-
       <button
         onClick={onAddCustom}
         className="px-5 py-2 text-lg rounded hover:opacity-90"
@@ -62,7 +64,6 @@ export function SearchInput({
       >
         Add
       </button>
-
       {loading && <p className="text-sm text-[#ffddba] mt-1">Searching...</p>}
 
       {results.length > 0 && (
@@ -75,9 +76,25 @@ export function SearchInput({
                 setInput("");
                 setResults([]);
               }}
-              className="px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220]"
+              className="flex items-center gap-3 px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220]"
             >
-              {item.name}
+              {item.image && (
+                <div className="w-10 h-10 flex-shrink-0">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover rounded"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="font-medium">{item.name}</span>
+                {item.type && (
+                  <span className="text-xs text-[#c8b9a6]">
+                    {item.type.toUpperCase()}
+                  </span>
+                )}
+              </div>
             </li>
           ))}
         </ul>
@@ -107,9 +124,13 @@ async function fetchItemsFromIGDB(query: string): Promise<Item[]> {
     return [];
   }
 
-  const data: Item[] = await res.json();
-  console.log("IGDB games:", data);
-  return data;
+  const games = await res.json();
+  console.log("IGDB games:", games);
+
+  return games.map((game: any) => ({
+    ...game,
+    type: "game",
+  }));
 }
 
 async function fetchItemsFromTMDB(query: string): Promise<Item[]> {
@@ -127,11 +148,13 @@ async function fetchItemsFromTMDB(query: string): Promise<Item[]> {
   const movies = await res.json();
   console.log("TMDB movies:", movies);
 
-  return movies.map((movie: any) => ({
-    name: movie.title,
-    image: movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  return movies.map((movie: TMDBApiResponse) => ({
+    id: movie.id,
+    name: movie.name,
+    image: movie.image
+      ? `https://image.tmdb.org/t/p/w500${movie.image}`
       : undefined,
     releaseDate: movie.release_date,
+    type: "movie",
   }));
 }

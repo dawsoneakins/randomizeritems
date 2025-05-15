@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { SearchInput } from "./autocomplete/games";
+import { SearchInput } from "./autocomplete/items";
 import SelectedItemModal from "./components/SelectedItemModal";
 import { Item } from "./types/Item";
-import { fetchCombinedItems } from "./autocomplete/games";
+import { fetchCombinedItems } from "./autocomplete/items";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
