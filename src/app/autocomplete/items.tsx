@@ -3,6 +3,8 @@ import { Item } from "../types/Item";
 
 import { IGDBApiResponse, TMDBApiResponse } from "../types/apis";
 
+const queryCache: Record<string, Item[]> = {};
+
 export function SearchInput({
   input,
   setInput,
@@ -35,7 +37,6 @@ export function SearchInput({
     return () => clearTimeout(timer);
   }, [input, fetchItems]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -134,12 +135,21 @@ export function SearchInput({
 }
 
 export async function fetchCombinedItems(query: string): Promise<Item[]> {
+  const normalized = query.trim().toLowerCase();
+  if (queryCache[normalized]) {
+    console.log(`Cache hit for: ${normalized}`);
+    return queryCache[normalized];
+  }
+
+  console.log(`Cache miss for: ${normalized}`);
   const [games, movies] = await Promise.all([
-    fetchItemsFromIGDB(query),
-    fetchItemsFromTMDB(query),
+    fetchItemsFromIGDB(normalized),
+    fetchItemsFromTMDB(normalized),
   ]);
 
-  return [...games, ...movies];
+  const combined = [...games, ...movies];
+  queryCache[normalized] = combined;
+  return combined;
 }
 
 async function fetchItemsFromIGDB(query: string): Promise<Item[]> {
