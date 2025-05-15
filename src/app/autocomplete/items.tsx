@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Item } from "../types/Item";
 
-import { IGDBApiResponse, TMDBApiResponse } from "../types/apis";
+import {
+  IGDBApiResponse,
+  TMDBApiResponse,
+  TMDBTVApiResponse,
+} from "../types/apis";
 
 const queryCache: Record<string, Item[]> = {};
 
@@ -95,10 +99,15 @@ export function SearchInput({
         Add
       </button>
 
-      {loading && <p className="text-sm text-[#ffddba] mt-1">Searching...</p>}
-
-      {results.length > 0 && (
+      {(loading || results.length > 0) && (
         <ul className="absolute top-full left-0 mt-1 w-full z-10 rounded bg-[#4e4c4f] max-h-60 overflow-y-auto shadow">
+          {loading && (
+            <li className="flex items-center justify-center gap-2 px-4 py-3 text-[#ffddba] text-sm italic border-b border-[#6c6565]">
+              <span className="animate-pulse text-[#d9ae8e]">
+                🔍 Searching...
+              </span>
+            </li>
+          )}
           {results.map((item, idx) => (
             <li
               key={`${item.name}-${idx}`}
@@ -216,13 +225,13 @@ async function fetchItemsFromTMDBTV(query: string): Promise<Item[]> {
   const shows = await res.json();
   console.log("TMDB TV shows:", shows);
 
-  return shows.map((show: any) => ({
+  return shows.map((show: TMDBTVApiResponse) => ({
     id: show.id,
     name: show.name,
     image: show.image
       ? `https://image.tmdb.org/t/p/w500${show.image}`
       : undefined,
-    releaseDate: show.releaseDate,
+    releaseDate: show.release_date,
     type: "tv",
   }));
 }

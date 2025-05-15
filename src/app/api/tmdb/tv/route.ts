@@ -1,3 +1,4 @@
+import { TMDBTV } from "@/app/types/apis";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
 
   const data = await res.json();
 
-  const formatted = data.results.map((show: any) => ({
+  const formatted = data.results.map((show: TMDBTV) => ({
     id: show.id,
     name: show.name,
     image: show.poster_path
