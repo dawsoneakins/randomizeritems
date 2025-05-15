@@ -49,6 +49,16 @@ export function SearchInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Refetch when user refocuses input
+  const handleFocus = async () => {
+    if (input.trim() && results.length === 0) {
+      setLoading(true);
+      const items = await fetchItems(input);
+      setResults(items);
+      setLoading(false);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") onAddCustom();
   };
@@ -63,6 +73,7 @@ export function SearchInput({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
         className="w-full px-4 py-2 rounded focus:outline-none"
         placeholder={placeholder}
         style={{
@@ -82,6 +93,7 @@ export function SearchInput({
       >
         Add
       </button>
+
       {loading && <p className="text-sm text-[#ffddba] mt-1">Searching...</p>}
 
       {results.length > 0 && (
