@@ -21,6 +21,7 @@ export function SearchInput({
   const [results, setResults] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!input.trim()) return;
@@ -34,12 +35,29 @@ export function SearchInput({
     return () => clearTimeout(timer);
   }, [input, fetchItems]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setResults([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") onAddCustom();
   };
 
   return (
-    <div className="relative w-full flex flex-col sm:flex-row gap-2">
+    <div
+      ref={containerRef}
+      className="relative w-full flex flex-col sm:flex-row gap-2"
+    >
       <input
         ref={inputRef}
         value={input}
@@ -127,7 +145,7 @@ async function fetchItemsFromIGDB(query: string): Promise<Item[]> {
   const games = await res.json();
   console.log("IGDB games:", games);
 
-  return games.map((game: any) => ({
+  return games.map((game: IGDBApiResponse) => ({
     ...game,
     type: "game",
   }));
