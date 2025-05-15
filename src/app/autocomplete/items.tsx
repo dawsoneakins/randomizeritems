@@ -136,18 +136,20 @@ export function SearchInput({
 
 export async function fetchCombinedItems(query: string): Promise<Item[]> {
   const normalized = query.trim().toLowerCase();
+
   if (queryCache[normalized]) {
     console.log(`Cache hit for: ${normalized}`);
     return queryCache[normalized];
   }
 
   console.log(`Cache miss for: ${normalized}`);
-  const [games, movies] = await Promise.all([
+  const [games, movies, tvShows] = await Promise.all([
     fetchItemsFromIGDB(normalized),
     fetchItemsFromTMDB(normalized),
+    fetchItemsFromTMDBTV(normalized),
   ]);
 
-  const combined = [...games, ...movies];
+  const combined = [...games, ...movies, ...tvShows];
   queryCache[normalized] = combined;
   return combined;
 }
@@ -174,7 +176,7 @@ async function fetchItemsFromIGDB(query: string): Promise<Item[]> {
 }
 
 async function fetchItemsFromTMDB(query: string): Promise<Item[]> {
-  const res = await fetch("/api/tmdb", {
+  const res = await fetch("/api/tmdb/movie", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),
@@ -196,5 +198,31 @@ async function fetchItemsFromTMDB(query: string): Promise<Item[]> {
       : undefined,
     releaseDate: movie.release_date,
     type: "movie",
+  }));
+}
+
+async function fetchItemsFromTMDBTV(query: string): Promise<Item[]> {
+  const res = await fetch("/api/tmdb/tv", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) {
+    console.error("TMDB TV search failed:", await res.text());
+    return [];
+  }
+
+  const shows = await res.json();
+  console.log("TMDB TV shows:", shows);
+
+  return shows.map((show: any) => ({
+    id: show.id,
+    name: show.name,
+    image: show.image
+      ? `https://image.tmdb.org/t/p/w500${show.image}`
+      : undefined,
+    releaseDate: show.releaseDate,
+    type: "tv",
   }));
 }

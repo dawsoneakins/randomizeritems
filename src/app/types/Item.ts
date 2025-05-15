@@ -3,5 +3,5 @@ export type Item = {
   name: string;
   image?: string;
   releaseDate?: string;
-  type?: "game" | "movie" | string;
+  type?: "game" | "movie" | "tv" | string;
 };
