@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { GameSearchInput } from "./autocomplete/games";
+import { SearchInput } from "./autocomplete/games";
 import SelectedItemModal from "./components/SelectedItemModal";
 import { Item } from "./types/Item";
+import { fetchCombinedItems } from "./autocomplete/games";
 
 export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
@@ -96,11 +97,13 @@ export default function Home() {
         </h1>
 
         <div className="flex flex-col sm:flex-row gap-2 mb-6 w-full max-w-2xl mx-auto">
-          <GameSearchInput
+          <SearchInput
             input={input}
             setInput={setInput}
             onSelect={(item: Item) => setItems((prev) => [...prev, item])}
             onAddCustom={addItem}
+            fetchItems={fetchCombinedItems}
+            placeholder="Search for a game or movie..."
           />
         </div>
 

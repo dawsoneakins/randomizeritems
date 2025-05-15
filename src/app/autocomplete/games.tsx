@@ -1,16 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { Item } from "../types/Item";
 
-export function GameSearchInput({
+export function SearchInput({
   input,
   setInput,
   onSelect,
   onAddCustom,
+  fetchItems,
+  placeholder = "Type or search...",
 }: {
   input: string;
   setInput: (val: string) => void;
   onSelect: (item: Item) => void;
   onAddCustom: () => void;
+  fetchItems: (query: string) => Promise<Item[]>;
+  placeholder?: string;
 }) {
   const [results, setResults] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,12 +24,12 @@ export function GameSearchInput({
     if (!input.trim()) return;
     const timer = setTimeout(async () => {
       setLoading(true);
-      const games = await fetchIGDBGames(input);
-      setResults(games);
+      const items = await fetchItems(input);
+      setResults(items);
       setLoading(false);
     }, 400);
     return () => clearTimeout(timer);
-  }, [input]);
+  }, [input, fetchItems]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") onAddCustom();
@@ -39,7 +43,7 @@ export function GameSearchInput({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         className="w-full px-4 py-2 rounded focus:outline-none"
-        placeholder="Type or search for a game..."
+        placeholder={placeholder}
         style={{
           backgroundColor: "#9f8d8d",
           color: "#232220",
@@ -63,17 +67,17 @@ export function GameSearchInput({
 
       {results.length > 0 && (
         <ul className="absolute top-full left-0 mt-1 w-full z-10 rounded bg-[#4e4c4f] max-h-60 overflow-y-auto shadow">
-          {results.map((game, idx) => (
+          {results.map((item, idx) => (
             <li
-              key={`${game.name}-${idx}`}
+              key={`${item.name}-${idx}`}
               onClick={() => {
-                onSelect(game);
+                onSelect(item);
                 setInput("");
                 setResults([]);
               }}
               className="px-4 py-2 text-[#ffddba] cursor-pointer hover:bg-[#d9ae8e] hover:text-[#232220]"
             >
-              {game.name}
+              {item.name}
             </li>
           ))}
         </ul>
@@ -82,12 +86,19 @@ export function GameSearchInput({
   );
 }
 
-export async function fetchIGDBGames(query: string): Promise<Item[]> {
+export async function fetchCombinedItems(query: string): Promise<Item[]> {
+  const [games, movies] = await Promise.all([
+    fetchItemsFromIGDB(query),
+    fetchItemsFromTMDB(query),
+  ]);
+
+  return [...games, ...movies];
+}
+
+async function fetchItemsFromIGDB(query: string): Promise<Item[]> {
   const res = await fetch("/api/igdb", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),
   });
 
@@ -96,7 +107,31 @@ export async function fetchIGDBGames(query: string): Promise<Item[]> {
     return [];
   }
 
-  const data: Item[] = await res.json(); // Already formatted from the server
-  console.log("Fetched games:", data);
+  const data: Item[] = await res.json();
+  console.log("IGDB games:", data);
   return data;
+}
+
+async function fetchItemsFromTMDB(query: string): Promise<Item[]> {
+  const res = await fetch("/api/tmdb", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) {
+    console.error("TMDB search failed:", await res.text());
+    return [];
+  }
+
+  const movies = await res.json();
+  console.log("TMDB movies:", movies);
+
+  return movies.map((movie: any) => ({
+    name: movie.title,
+    image: movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      : undefined,
+    releaseDate: movie.release_date,
+  }));
 }
