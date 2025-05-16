@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SearchInput } from "./autocomplete/items";
-import SelectedItemModal from "./components/SelectedItemModal";
+import SelectedItemScreen from "./components/SelectedItemScreen";
 import { Item } from "./types/Item";
 import { fetchCombinedItems } from "./autocomplete/items";
 
@@ -15,6 +15,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
+
+  const spinRepetitions = 5;
+  const spinningItems = Array(spinRepetitions).fill(items).flat();
 
   const addItem = () => {
     const trimmed = input.trim();
@@ -54,21 +57,23 @@ export default function Home() {
 
   const pickRandom = () => {
     if (items.length === 0) return;
+
     setIsPicking(true);
     setCarouselIndex(0);
     setSelected(null);
 
+    const totalSpins = 30;
+    const spinInterval = 80;
+
     let currentIndex = 0;
-    const spins = 25 + Math.floor(Math.random() * 10);
-    const delays = Array.from({ length: spins }, (_, i) => 50 + i * 10);
 
     const spin = () => {
-      if (currentIndex < delays.length) {
-        setCarouselIndex(currentIndex % items.length);
-        setTimeout(spin, delays[currentIndex]);
+      if (currentIndex < totalSpins) {
+        setCarouselIndex(currentIndex);
         currentIndex++;
+        setTimeout(spin, spinInterval);
       } else {
-        const picked = items[currentIndex % items.length];
+        const picked = items[Math.floor(Math.random() * items.length)];
         setSelected(picked);
         addToHistory(picked);
         setIsPicking(false);
@@ -198,10 +203,10 @@ export default function Home() {
       </div>
 
       {(isPicking || selected) && (
-        <SelectedItemModal
+        <SelectedItemScreen
           isPicking={isPicking}
           selected={selected}
-          items={items}
+          items={spinningItems}
           carouselIndex={carouselIndex ?? 0}
           onTryAgain={pickRandom}
           onReset={() => {
