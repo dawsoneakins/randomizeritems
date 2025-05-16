@@ -197,7 +197,7 @@ export default function Home() {
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="relative min-w-[250px] flex-shrink-0 pt-6"
+                  className="relative w-[90vw] sm:min-w-[250px] flex-shrink-0 pt-4"
                 >
                   <button
                     onClick={() => removeItem(index)}
@@ -207,14 +207,14 @@ export default function Home() {
                     ×
                   </button>
 
-                  <div className="p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]">
+                  <div className="p-4 sm:p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]">
                     {item.image ? (
                       <Image
                         src={item.image}
                         alt={item.name}
-                        width={250}
-                        height={250}
-                        className="rounded mb-3 w-full object-cover"
+                        width={200}
+                        height={200}
+                        className="rounded mb-3 w-full object-cover max-h-[200px] sm:max-h-[250px]"
                         draggable={false}
                       />
                     ) : (
@@ -222,7 +222,7 @@ export default function Home() {
                         No image
                       </div>
                     )}
-                    <span className="text-lg font-semibold mb-1 text-center block">
+                    <span className="text-base sm:text-lg font-semibold mb-1 text-center block">
                       {item.name}
                     </span>
                     {item.releaseDate && (
