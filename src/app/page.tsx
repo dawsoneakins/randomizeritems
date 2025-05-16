@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { SearchInput } from "./autocomplete/items";
 import SelectedItemScreen from "./components/SelectedItemScreen";
@@ -55,14 +55,12 @@ export default function Home() {
   const addItem = () => {
     const trimmed = input.trim();
     if (!trimmed) return setError("Please enter an item name.");
-
     const isDuplicate = items.some(
       (item) => item.name.toLowerCase() === trimmed.toLowerCase()
     );
-
     if (isDuplicate) {
       const confirmAdd = window.confirm(
-        "This item already exists. Are you sure you want to add it again?"
+        "This item already exists. Add it again?"
       );
       if (!confirmAdd) {
         setInput("");
@@ -70,7 +68,6 @@ export default function Home() {
         return;
       }
     }
-
     setItems((prev) => [...prev, { name: trimmed }]);
     setInput("");
     setError(null);
@@ -90,7 +87,6 @@ export default function Home() {
 
   const pickRandom = () => {
     if (items.length === 0) return;
-
     setIsPicking(true);
     setCarouselIndex(0);
     setSelected(null);
@@ -99,7 +95,6 @@ export default function Home() {
     const spinInterval = 80;
 
     let currentIndex = 0;
-
     const spin = () => {
       if (currentIndex < totalSpins) {
         setCarouselIndex(currentIndex);
@@ -112,14 +107,11 @@ export default function Home() {
         setIsPicking(false);
       }
     };
-
     spin();
   };
 
   const clearAllItems = () => {
-    const confirmClear = window.confirm(
-      "Are you sure you want to remove all items?"
-    );
+    const confirmClear = window.confirm("Remove all items?");
     if (!confirmClear) return;
     setItems([]);
     setSelected(null);
@@ -169,37 +161,40 @@ export default function Home() {
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="min-w-[250px] flex-shrink-0 p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]"
+                  className="relative min-w-[250px] flex-shrink-0 pt-6"
                 >
-                  {item.image ? (
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      width={250}
-                      height={250}
-                      className="rounded mb-3 w-full object-cover"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
-                      No image
-                    </div>
-                  )}
-                  <span className="text-lg font-semibold mb-1 text-center block">
-                    {item.name}
-                  </span>
-                  {item.releaseDate && (
-                    <p className="text-sm text-center mb-2">
-                      📅 {item.releaseDate}
-                    </p>
-                  )}
                   <button
                     onClick={() => removeItem(index)}
-                    className="text-sm hover:underline block text-right"
-                    style={{ color: "#ffddba" }}
+                    className="absolute top-3 -left-3 z-20 bg-[#ff6b6b] text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md hover:scale-110 hover:bg-red-500 transition"
+                    aria-label="Remove item"
                   >
-                    Remove
+                    ×
                   </button>
+
+                  <div className="p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={250}
+                        height={250}
+                        className="rounded mb-3 w-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
+                        No image
+                      </div>
+                    )}
+                    <span className="text-lg font-semibold mb-1 text-center block">
+                      {item.name}
+                    </span>
+                    {item.releaseDate && (
+                      <p className="text-sm text-center mb-2">
+                        📅 {item.releaseDate}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </section>
