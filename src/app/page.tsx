@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { SearchInput } from "./autocomplete/items";
 import SelectedItemScreen from "./components/SelectedItemScreen";
-import { Item } from "./types/Item";
+import { Item, List } from "./types/Item";
 import { fetchCombinedItems } from "./autocomplete/items";
 
 export default function Home() {
@@ -25,6 +25,18 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
+
+  const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string>("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("pickerLists");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const simplified = parsed.map((l: List) => ({ id: l.id, name: l.name }));
+      setLists(simplified);
+    }
+  }, []);
 
   const scrollRight = () => {
     scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
@@ -119,6 +131,30 @@ export default function Home() {
     setIsPicking(false);
   };
 
+  const handleSaveToList = (item: Item) => {
+    if (!selectedListId) return;
+
+    const saved = localStorage.getItem("pickerLists");
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+    const updated = parsed.map((list: List) => {
+      if (list.id === selectedListId) {
+        const exists = list.items?.some((i: Item) => i.name === item.name);
+        if (!exists) {
+          return {
+            ...list,
+            items: [...(list.items || []), item],
+          };
+        }
+      }
+      return list;
+    });
+
+    localStorage.setItem("pickerLists", JSON.stringify(updated));
+    alert(`✅ Added to "${lists.find((l) => l.id === selectedListId)?.name}"`);
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center bg-[#232220] px-4">
       <div className="w-full max-w-4xl pt-24 pb-16">
@@ -195,6 +231,26 @@ export default function Home() {
                       </p>
                     )}
                   </div>
+                  <select
+                    value={selectedListId}
+                    onChange={(e) => setSelectedListId(e.target.value)}
+                    className="w-full mt-2 mb-1 px-2 py-1 rounded bg-[#3c3a3d] text-[#ffddba]"
+                  >
+                    <option value="">📁 Choose a list</option>
+                    {lists.map((list) => (
+                      <option key={list.id} value={list.id}>
+                        {list.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={() => handleSaveToList(item)}
+                    disabled={!selectedListId}
+                    className="w-full mt-1 px-3 py-1 text-sm rounded bg-[#d9ae8e] text-[#232220] font-semibold hover:opacity-90 disabled:opacity-50"
+                  >
+                    ➕ Add to List
+                  </button>
                 </div>
               ))}
             </section>
