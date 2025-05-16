@@ -53,12 +53,14 @@ export default function Navbar() {
           </span>
         </Link>
 
+        {/* Mobile Menu Icon */}
         <div className="sm:hidden">
           <button onClick={() => setSidebarOpen(true)}>
             <Menu className="text-[#ffddba]" size={28} />
           </button>
         </div>
 
+        {/* Desktop Links */}
         <div className="hidden sm:flex items-center gap-6 relative">
           <Link
             href="/history"
@@ -125,6 +127,7 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Overlay for Sidebar */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -132,6 +135,7 @@ export default function Navbar() {
         />
       )}
 
+      {/* Mobile Sidebar */}
       <aside
         className={`fixed top-0 right-0 h-full w-64 bg-[#4e4c4f] text-[#ffddba] z-50 transform transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "translate-x-full"
@@ -152,16 +156,27 @@ export default function Navbar() {
             🕘 History
           </Link>
 
-          <div>
-            <button
-              className="flex items-center gap-2 hover:text-[#d9ae8e]"
-              onClick={() => {
-                fetchLists();
-                setMobileDropdownOpen(!mobileDropdownOpen);
-              }}
-            >
-              📁 Lists <ChevronDown size={16} />
-            </button>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <Link
+                href="/lists"
+                className="hover:text-[#d9ae8e] flex-1"
+                onClick={() => setSidebarOpen(false)}
+              >
+                📁 Lists
+              </Link>
+              <button
+                onClick={() => {
+                  fetchLists();
+                  setMobileDropdownOpen(!mobileDropdownOpen);
+                }}
+                className="text-[#ffddba] hover:text-[#d9ae8e]"
+                aria-label="Toggle dropdown"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+
             {mobileDropdownOpen && (
               <ul className="mt-2 ml-4 flex flex-col gap-2">
                 {lists.length === 0 ? (
