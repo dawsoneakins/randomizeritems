@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { SearchInput } from "./autocomplete/items";
 import SelectedItemScreen from "./components/SelectedItemScreen";
@@ -145,7 +145,7 @@ export default function Home() {
           <div className="relative w-full mb-10">
             <button
               onClick={scrollLeft}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+              className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
             >
               <ChevronLeft size={24} />
             </button>
@@ -201,7 +201,7 @@ export default function Home() {
 
             <button
               onClick={scrollRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
             >
               <ChevronRight size={24} />
             </button>

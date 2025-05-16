@@ -12,8 +12,6 @@ import SwiperCore from "swiper";
 import "swiper/css";
 import "swiper/css/autoplay";
 
-SwiperCore.use([Autoplay]);
-
 type Props = {
   isPicking: boolean;
   selected: Item | null;
@@ -23,11 +21,13 @@ type Props = {
   onReset: () => void;
 };
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+SwiperCore.use([Autoplay]);
+
 export default function SelectedItemScreen({
   isPicking,
   selected,
   items,
-  carouselIndex,
   onTryAgain,
   onReset,
 }: Props) {
