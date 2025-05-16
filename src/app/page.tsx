@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { SearchInput } from "./autocomplete/items";
 import SelectedItemScreen from "./components/SelectedItemScreen";
 import { Item } from "./types/Item";
@@ -18,6 +20,37 @@ export default function Home() {
 
   const spinRepetitions = 5;
   const spinningItems = Array(spinRepetitions).fill(items).flat();
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
+  };
+
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0));
+    setDragStartScrollLeft(scrollRef.current?.scrollLeft || 0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    scrollRef.current.scrollLeft = dragStartScrollLeft - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+  };
 
   const addItem = () => {
     const trimmed = input.trim();
@@ -108,7 +141,7 @@ export default function Home() {
             onSelect={(item: Item) => setItems((prev) => [...prev, item])}
             onAddCustom={addItem}
             fetchItems={fetchCombinedItems}
-            placeholder="Search for a game or movie..."
+            placeholder="Search for a game, movie, or TV show..."
           />
         </div>
 
@@ -117,46 +150,67 @@ export default function Home() {
         )}
 
         {items.length > 0 && (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-center mb-10">
-            {items.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col justify-between p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]"
-              >
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={300}
-                    height={300}
-                    className="rounded mb-3 w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
-                    No image
-                  </div>
-                )}
+          <div className="relative w-full mb-10">
+            <button
+              onClick={scrollLeft}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+            >
+              <ChevronLeft size={24} />
+            </button>
 
-                <span className="text-lg font-semibold mb-1 text-center">
-                  {item.name}
-                </span>
-
-                {item.releaseDate && (
-                  <p className="text-sm text-center mb-2">
-                    📅 {item.releaseDate}
-                  </p>
-                )}
-
-                <button
-                  onClick={() => removeItem(index)}
-                  className="text-sm hover:underline self-end"
-                  style={{ color: "#ffddba" }}
+            <section
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-4 px-10 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUpOrLeave}
+              onMouseLeave={handleMouseUpOrLeave}
+            >
+              {items.map((item, index) => (
+                <div
+                  key={index}
+                  className="min-w-[250px] flex-shrink-0 p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]"
                 >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </section>
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={250}
+                      height={250}
+                      className="rounded mb-3 w-full object-cover"
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
+                      No image
+                    </div>
+                  )}
+                  <span className="text-lg font-semibold mb-1 text-center block">
+                    {item.name}
+                  </span>
+                  {item.releaseDate && (
+                    <p className="text-sm text-center mb-2">
+                      📅 {item.releaseDate}
+                    </p>
+                  )}
+                  <button
+                    onClick={() => removeItem(index)}
+                    className="text-sm hover:underline block text-right"
+                    style={{ color: "#ffddba" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </section>
+
+            <button
+              onClick={scrollRight}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
         )}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
