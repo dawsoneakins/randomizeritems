@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { SearchInput } from "./autocomplete/items";
-import SelectedItemModal from "./components/SelectedItemModal";
+import SelectedItemScreen from "./components/SelectedItemScreen";
 import { Item } from "./types/Item";
 import { fetchCombinedItems } from "./autocomplete/items";
 
@@ -16,17 +18,49 @@ export default function Home() {
   const [isPicking, setIsPicking] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
 
+  const spinRepetitions = 5;
+  const spinningItems = Array(spinRepetitions).fill(items).flat();
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [dragStartScrollLeft, setDragStartScrollLeft] = useState(0);
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
+  };
+
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.pageX - (scrollRef.current?.offsetLeft || 0));
+    setDragStartScrollLeft(scrollRef.current?.scrollLeft || 0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    scrollRef.current.scrollLeft = dragStartScrollLeft - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+  };
+
   const addItem = () => {
     const trimmed = input.trim();
     if (!trimmed) return setError("Please enter an item name.");
-
     const isDuplicate = items.some(
       (item) => item.name.toLowerCase() === trimmed.toLowerCase()
     );
-
     if (isDuplicate) {
       const confirmAdd = window.confirm(
-        "This item already exists. Are you sure you want to add it again?"
+        "This item already exists. Add it again?"
       );
       if (!confirmAdd) {
         setInput("");
@@ -34,7 +68,6 @@ export default function Home() {
         return;
       }
     }
-
     setItems((prev) => [...prev, { name: trimmed }]);
     setInput("");
     setError(null);
@@ -58,30 +91,27 @@ export default function Home() {
     setCarouselIndex(0);
     setSelected(null);
 
-    let currentIndex = 0;
-    const spins = 25 + Math.floor(Math.random() * 10);
-    const delays = Array.from({ length: spins }, (_, i) => 50 + i * 10);
+    const totalSpins = 30;
+    const spinInterval = 80;
 
+    let currentIndex = 0;
     const spin = () => {
-      if (currentIndex < delays.length) {
-        setCarouselIndex(currentIndex % items.length);
-        setTimeout(spin, delays[currentIndex]);
+      if (currentIndex < totalSpins) {
+        setCarouselIndex(currentIndex);
         currentIndex++;
+        setTimeout(spin, spinInterval);
       } else {
-        const picked = items[currentIndex % items.length];
+        const picked = items[Math.floor(Math.random() * items.length)];
         setSelected(picked);
         addToHistory(picked);
         setIsPicking(false);
       }
     };
-
     spin();
   };
 
   const clearAllItems = () => {
-    const confirmClear = window.confirm(
-      "Are you sure you want to remove all items?"
-    );
+    const confirmClear = window.confirm("Remove all items?");
     if (!confirmClear) return;
     setItems([]);
     setSelected(null);
@@ -103,7 +133,7 @@ export default function Home() {
             onSelect={(item: Item) => setItems((prev) => [...prev, item])}
             onAddCustom={addItem}
             fetchItems={fetchCombinedItems}
-            placeholder="Search for a game or movie..."
+            placeholder="Search for a game, movie, or TV show..."
           />
         </div>
 
@@ -112,46 +142,70 @@ export default function Home() {
         )}
 
         {items.length > 0 && (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-center mb-10">
-            {items.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col justify-between p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]"
-              >
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={300}
-                    height={300}
-                    className="rounded mb-3 w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
-                    No image
-                  </div>
-                )}
+          <div className="relative w-full mb-10">
+            <button
+              onClick={scrollLeft}
+              className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+            >
+              <ChevronLeft size={24} />
+            </button>
 
-                <span className="text-lg font-semibold mb-1 text-center">
-                  {item.name}
-                </span>
-
-                {item.releaseDate && (
-                  <p className="text-sm text-center mb-2">
-                    📅 {item.releaseDate}
-                  </p>
-                )}
-
-                <button
-                  onClick={() => removeItem(index)}
-                  className="text-sm hover:underline self-end"
-                  style={{ color: "#ffddba" }}
+            <section
+              ref={scrollRef}
+              className="flex overflow-x-auto gap-4 px-10 no-scrollbar cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUpOrLeave}
+              onMouseLeave={handleMouseUpOrLeave}
+            >
+              {items.map((item, index) => (
+                <div
+                  key={index}
+                  className="relative min-w-[250px] flex-shrink-0 pt-6"
                 >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </section>
+                  <button
+                    onClick={() => removeItem(index)}
+                    className="absolute top-3 -left-3 z-20 bg-[#ff6b6b] text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md hover:scale-110 hover:bg-red-500 transition"
+                    aria-label="Remove item"
+                  >
+                    ×
+                  </button>
+
+                  <div className="p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={250}
+                        height={250}
+                        className="rounded mb-3 w-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
+                        No image
+                      </div>
+                    )}
+                    <span className="text-lg font-semibold mb-1 text-center block">
+                      {item.name}
+                    </span>
+                    {item.releaseDate && (
+                      <p className="text-sm text-center mb-2">
+                        📅 {item.releaseDate}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            <button
+              onClick={scrollRight}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#4e4c4f] text-[#ffddba] rounded-full shadow hover:scale-105 active:scale-95"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
         )}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -198,10 +252,10 @@ export default function Home() {
       </div>
 
       {(isPicking || selected) && (
-        <SelectedItemModal
+        <SelectedItemScreen
           isPicking={isPicking}
           selected={selected}
-          items={items}
+          items={spinningItems}
           carouselIndex={carouselIndex ?? 0}
           onTryAgain={pickRandom}
           onReset={() => {
