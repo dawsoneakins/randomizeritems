@@ -197,7 +197,7 @@ export default function Home() {
               {items.map((item, index) => (
                 <div
                   key={index}
-                  className="relative w-[90vw] sm:min-w-[250px] flex-shrink-0 pt-4"
+                  className="relative w-full max-w-xs sm:min-w-[250px] flex-shrink-0 pt-4"
                 >
                   <button
                     onClick={() => removeItem(index)}
@@ -207,18 +207,20 @@ export default function Home() {
                     ×
                   </button>
 
-                  <div className="p-4 sm:p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba]">
+                  <div className="p-4 sm:p-4 rounded shadow bg-[#4e4c4f] text-[#ffddba] flex flex-col items-center">
                     {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={200}
-                        height={200}
-                        className="rounded mb-3 w-full object-cover max-h-[200px] sm:max-h-[250px]"
-                        draggable={false}
-                      />
+                      <div className="w-full h-auto max-h-[250px] overflow-hidden flex justify-center">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={200}
+                          height={250}
+                          className="rounded object-contain max-h-[250px]"
+                          draggable={false}
+                        />
+                      </div>
                     ) : (
-                      <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm">
+                      <div className="h-[160px] mb-3 flex items-center justify-center rounded bg-[#9f8d8d] text-[#232220] text-sm w-full">
                         No image
                       </div>
                     )}
