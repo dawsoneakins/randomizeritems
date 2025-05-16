@@ -29,7 +29,7 @@ export default function ListDetailPage() {
   }
 
   return (
-    <div className="p-6 text-[#ffddba] min-h-screen bg-[#000000]">
+    <div className="pt-[120px] sm:pt-24 pb-24 px-4 text-[#ffddba] min-h-screen">
       <h1 className="text-3xl font-bold mb-6">📄 {list.name}</h1>
 
       {list.items.length === 0 ? (
