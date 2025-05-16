@@ -4,7 +4,7 @@ import HistoryList from "../components/HistoryList";
 
 export default function History() {
   return (
-    <div className="pt-20 pb-24 px-6 flex flex-col items-center">
+    <div className="pt-[120px] sm:pt-24 pb-24 px-6 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 text-[#ffddba]">
         🕘 Pick History
       </h1>

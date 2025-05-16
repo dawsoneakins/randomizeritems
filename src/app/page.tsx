@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { SearchInput } from "./autocomplete/items";
 import SelectedItemScreen from "./components/SelectedItemScreen";
-import { Item } from "./types/Item";
+import { Item, List } from "./types/Item";
 import { fetchCombinedItems } from "./autocomplete/items";
 
 export default function Home() {
@@ -33,7 +33,7 @@ export default function Home() {
     const saved = localStorage.getItem("pickerLists");
     if (saved) {
       const parsed = JSON.parse(saved);
-      const simplified = parsed.map((l: any) => ({ id: l.id, name: l.name }));
+      const simplified = parsed.map((l: List) => ({ id: l.id, name: l.name }));
       setLists(simplified);
     }
   }, []);
@@ -138,7 +138,7 @@ export default function Home() {
     if (!saved) return;
 
     const parsed = JSON.parse(saved);
-    const updated = parsed.map((list: any) => {
+    const updated = parsed.map((list: List) => {
       if (list.id === selectedListId) {
         const exists = list.items?.some((i: Item) => i.name === item.name);
         if (!exists) {

@@ -36,7 +36,7 @@ export default function ListManagerPage() {
   };
 
   return (
-    <div className="p-6 text-[#ffddba]">
+    <div className="pt-24 pb-6 px-6 text-[#ffddba]">
       <h1 className="text-3xl font-bold mb-6">Your Lists</h1>
       <button
         onClick={createList}
