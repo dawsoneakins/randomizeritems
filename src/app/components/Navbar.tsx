@@ -15,7 +15,14 @@ export default function Navbar() {
           Random Item Picker
         </span>
       </Link>
-      <div>
+
+      <div className="flex gap-6">
+        <Link
+          href="/lists"
+          className="text-[#ffddba] hover:text-[#d9ae8e] font-medium"
+        >
+          Lists
+        </Link>
         <Link
           href="/history"
           className="text-[#ffddba] hover:text-[#d9ae8e] font-medium"

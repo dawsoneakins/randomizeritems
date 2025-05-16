@@ -5,3 +5,9 @@ export type Item = {
   releaseDate?: string;
   type?: "game" | "movie" | "tv" | string;
 };
+
+export type List = {
+  id: string;
+  name: string;
+  items: Item[];
+};
