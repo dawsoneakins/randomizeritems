@@ -156,7 +156,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center bg-[#232220] px-4">
+    <main className="min-h-screen flex flex-col items-center px-4">
       <div className="w-full max-w-4xl pt-24 pb-16">
         <h1 className="text-4xl font-bold mb-8 text-center text-[#ffddba]">
           🎲 Random Item Picker

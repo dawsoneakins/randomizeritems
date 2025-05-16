@@ -1,7 +1,8 @@
 // app/layout.tsx
 import Script from "next/script";
 import "./globals.css";
-import Navbar from "./components/Navbar"; // ✅ Make sure the path is correct
+import Navbar from "./components/Navbar";
+import BackgroundParticles from "./components/BackgroundParticles";
 
 export const metadata = {
   title: "Random Item Picker",
@@ -29,9 +30,12 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body>
-        <Navbar />
-        {children}
+      <body className="relative z-0 min-h-screen overflow-x-hidden">
+        <BackgroundParticles />
+        <div className="relative z-10">
+          <Navbar />
+          {children}
+        </div>
       </body>
     </html>
   );
